@@ -68,8 +68,27 @@ def video():
         #mask = np.subtract(mask_brown, mask)
         res = cv.bitwise_and(frame,frame,mask=closing)
 
+        h, s, v1 = cv.split(res)
 
+        ret,thresh = cv.threshold(v1,127,255,0)
+        contours,hierarchy = cv.findContours(thresh, cv.RETR_TREE,cv.CHAIN_APPROX_SIMPLE)
 
+        cnt = contours[0]
+        M = cv.moments(cnt)
+        print( M )
+
+        if M["m00"] != 0:
+            cx = int(M["m10"] / M["m00"])
+            cy = int(M["m01"] / M["m00"])
+        else:
+            # set values as what you need in the situation
+            cx, cy = 0, 0
+
+        (x,y),radius = cv.minEnclosingCircle(cnt)
+        center = (int(x),int(y))
+        radius = int(radius)
+        cv.circle(res,center,radius,(0,255,0),2)
+        cv.circle(res,center, 1, (0,255,0),2)
         cv.imshow('frame', frame)
         cv.imshow('mask', closing)
         cv.imshow('res', res)
